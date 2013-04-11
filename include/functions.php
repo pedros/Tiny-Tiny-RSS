@@ -2256,7 +2256,7 @@
 		return $rv;
 	}
 
-	function queryFeedHeadlines($link, $feed, $limit, $view_mode, $cat_view, $search, $search_mode, $override_order = false, $offset = 0, $owner_uid = 0, $filter = false, $since_id = 0, $include_children = false, $ignore_vfeed_group = false) {
+	function queryFeedHeadlines($link, $feed, $limit, $view_mode, $cat_view, $search, $search_mode, $override_order = false, $offset = 0, $owner_uid = 0, $filter = false, $since_id = 0, $include_children = false, $ignore_vfeed_group = false, $article = false) {
 
 		if (!$owner_uid) $owner_uid = $_SESSION["uid"];
 
@@ -2314,6 +2314,13 @@
 				$filter_query_part = "";
 			}
 
+			if ($article) {
+				$article_id_part = "ttrss_entries.id in ($article) AND ";
+			} else {
+				$article_id_part = "";
+			}
+            
+            
 			if ($since_id) {
 				$since_id_part = "ttrss_entries.id > $since_id AND ";
 			} else {
@@ -2579,6 +2586,7 @@
 					$filter_query_part
 					$view_query_part
 					$since_id_part
+					$article_id_part
 					$query_strategy_part ORDER BY $order_by
 					$limit_query_part $offset_query_part";
 
@@ -2609,6 +2617,7 @@
 								"(SELECT hide_images FROM ttrss_feeds WHERE id = feed_id) AS hide_images," .
 								"last_marked, last_published, " .
 								$since_id_part .
+								$article_id_part .
 								$vfeed_query_part .
 								$content_query_part .
 								"score ";

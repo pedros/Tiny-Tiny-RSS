@@ -186,6 +186,12 @@ class API extends Handler {
 
 	function getHeadlines() {
 		$feed_id = db_escape_string($this->link, $_REQUEST["feed_id"]);
+		$article_id = join(",", array_filter(explode(",", db_escape_string($this->link, $_REQUEST["article_id"])), is_numeric));
+
+		if ($feed_id == "" && $article_id != "") {
+			$feed_id = -4;
+		}
+
 		if ($feed_id != "") {
 
 			$limit = (int)db_escape_string($this->link, $_REQUEST["limit"]);
@@ -222,7 +228,7 @@ class API extends Handler {
 			$headlines = $this->api_get_headlines($this->link, $feed_id, $limit, $offset,
 				$filter, $is_cat, $show_excerpt, $show_content, $view_mode, $override_order,
 				$include_attachments, $since_id, $search, $search_mode,
-				$include_nested, $sanitize_content);
+				$include_nested, $sanitize_content, $article_id);
 
 			print $this->wrap(self::STATUS_OK, $headlines);
 		} else {
@@ -648,11 +654,13 @@ class API extends Handler {
 				$filter, $is_cat, $show_excerpt, $show_content, $view_mode, $order,
 				$include_attachments, $since_id,
 				$search = "", $search_mode = "",
-				$include_nested = false, $sanitize_content = true) {
+				$include_nested = false, $sanitize_content = true,
+				$article_id = false) {
 
 			$qfh_ret = queryFeedHeadlines($link, $feed_id, $limit,
 				$view_mode, $is_cat, $search, $search_mode,
-				$order, $offset, 0, false, $since_id, $include_nested);
+				$order, $offset, 0, false, $since_id, $include_nested, false,
+				$article_id);
 
 			$result = $qfh_ret[0];
 			$feed_title = $qfh_ret[1];
